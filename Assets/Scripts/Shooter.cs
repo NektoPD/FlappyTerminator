@@ -3,25 +3,32 @@ using UnityEngine;
 
 public class Shooter : MonoBehaviour
 {
-    [SerializeField] private Bullet _bullet;
+    [SerializeField] private Bullet _bulletPrefab;
     [SerializeField] private float _delay;
+    [SerializeField] private BulletPool _pool;
 
-    public IEnumerator StartShooting(Transform shootingPosition, Vector3 direction)
+    public IEnumerator ConstantShoting(Transform shootingPosition, Vector3 direction)
     {
         WaitForSeconds shootingDelay = new WaitForSeconds(_delay);
 
         while(enabled)
         {
-            Bullet bullet = Instantiate(_bullet, transform.position, Quaternion.identity);
-            bullet.SetDirection(direction);
+            CreateBullet(shootingPosition, direction);
 
             yield return shootingDelay;
         }
     }
 
-    public void ShootOnce(Transform shootingPosition, Vector3 direction)
+    public void CreateBullet(Transform shootingPosition, Vector3 direction)
     {
-        Bullet bullet = Instantiate(_bullet, shootingPosition.position, Quaternion.identity);
+        Bullet bullet = Instantiate(_bulletPrefab, shootingPosition.position, shootingPosition.rotation);
         bullet.SetDirection(direction);
+        _pool?.AddBullet(bullet);
+    }
+
+    public void SetBulletPool(BulletPool pool)
+    {
+        _pool = pool;
     }
 }
+

@@ -1,23 +1,34 @@
-using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Shooter))]
+[RequireComponent(typeof(EnemyCollisionHandler))]
 public class Enemy : MonoBehaviour,IInteractable
 {
-    public static event Action Destroyed;
-
     [SerializeField] private Transform _shootingPosition;
 
     private Shooter _shooter;
+    private EnemyCollisionHandler _enemyCollisionHandler;
+    private ScoreCounter _scoreCounter;
 
     private void Awake()
     {
         _shooter = GetComponent<Shooter>();
+        _enemyCollisionHandler = GetComponent<EnemyCollisionHandler>();
+    }
+
+    private void OnEnable()
+    {
+        _enemyCollisionHandler.CollisionDetected += ProcessCollision;
+    }
+
+    private void OnDisable()
+    {
+        _enemyCollisionHandler.CollisionDetected -= ProcessCollision;
     }
 
     private void Start()
     {
-        StartCoroutine(_shooter.StartShooting(_shootingPosition, Vector3.left));
+        StartCoroutine(_shooter.ConstantShoting(_shootingPosition, Vector3.left));
     }
 
     public void Die()
@@ -25,12 +36,17 @@ public class Enemy : MonoBehaviour,IInteractable
         gameObject.SetActive(false);
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    public void SetScoreCounter(ScoreCounter counter)
     {
-        if(collision.gameObject.TryGetComponent(out PlayerBullet playerBullet))
+        _scoreCounter = counter;
+    }
+
+    private void ProcessCollision(IInteractable interactable)
+    {
+        if(interactable is PlayerBullet playerBullet)
         {
             Destroy(playerBullet.gameObject);
-            Destroyed?.Invoke();
+            _scoreCounter.IncreaseScore();
             Die();
         }
     }

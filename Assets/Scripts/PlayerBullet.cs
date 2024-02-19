@@ -1,5 +1,5 @@
 using UnityEngine;
 
-public class PlayerBullet : MonoBehaviour
+public class PlayerBullet : MonoBehaviour,IInteractable
 {
 }

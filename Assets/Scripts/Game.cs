@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class Game : MonoBehaviour
@@ -7,8 +5,8 @@ public class Game : MonoBehaviour
     [SerializeField] private Player _player;
     [SerializeField] private StartScreen _startScreen;
     [SerializeField] private EndScreen _restartScreen;
-
-    private List<Bullet> _bullets = new List<Bullet>();
+    [SerializeField] private BulletPool _bulletPool;
+    [SerializeField] private ScoreCounter _scoreCounter;
 
     private void OnEnable()
     {
@@ -48,13 +46,13 @@ public class Game : MonoBehaviour
     {
         Time.timeScale = 1;
         _player.Reset();
+        _scoreCounter.ResetScore();
     }
 
     private void OnGameOver()
     {
         Time.timeScale = 0;
-        _bullets = FindObjectsOfType<Bullet>().ToList();
-        _bullets.ForEach(bullet => bullet.gameObject.SetActive(false));
+        _bulletPool?.DeactivateAllBullets();
         _restartScreen.Open();
     }
 }
